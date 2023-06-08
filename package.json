@@ -4,7 +4,7 @@
   "type": "module",
   "main": "index.js",
   "repository": "git@github.com:mitsakosgr/cockpit-upower.git",
-  "author": "",
+  "author": "Dimitris Pappas",
   "license": "LGPL-2.1",
   "scripts": {
     "watch": "ESBUILD_WATCH='true' ./build.js",
