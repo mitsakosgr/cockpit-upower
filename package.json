@@ -1,9 +1,9 @@
 {
-  "name": "starter-kit",
-  "description": "Scaffolding for a cockpit module",
+  "name": "upower",
+  "description": "Module that displays all data reported by upower",
   "type": "module",
   "main": "index.js",
-  "repository": "git@github.com:cockpit/starter-kit.git",
+  "repository": "git@github.com:mitsakosgr/cockpit-upower.git",
   "author": "",
   "license": "LGPL-2.1",
   "scripts": {

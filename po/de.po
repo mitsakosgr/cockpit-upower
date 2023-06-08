@@ -22,16 +22,16 @@ msgstr "Cockpit Bausatz"
 msgid "Running on $0"
 msgstr "Läuft auf $0"
 
-#: org.cockpit-project.starter-kit.metainfo.xml:6
+#: org.cockpit-project.upower.metainfo.xml:6
 msgid "Scaffolding for a cockpit module"
 msgstr "Gerüst für ein Cockpit-Modul"
 
-#: org.cockpit-project.starter-kit.metainfo.xml:8
+#: org.cockpit-project.upower.metainfo.xml:8
 msgid "Scaffolding for a cockpit module."
 msgstr "Gerüst für ein Cockpit-Modul."
 
-#: src/manifest.json:0 org.cockpit-project.starter-kit.metainfo.xml:5
-msgid "Starter Kit"
+#: src/manifest.json:0 org.cockpit-project.upower.metainfo.xml:5
+msgid "Upower Module"
 msgstr "Bausatz"
 
 #: src/app.jsx:29
