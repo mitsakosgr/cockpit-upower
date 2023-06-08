@@ -17,32 +17,61 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import cockpit from 'cockpit';
-import React from 'react';
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Card, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
-
-const _ = cockpit.gettext;
+import cockpit from 'cockpit';
+import React from 'react';
 
 export class Application extends React.Component {
     constructor() {
         super();
-        this.state = { hostname: _("Unknown") };
-
-        cockpit.file('/etc/hostname').watch(content => {
-            this.setState({ hostname: content.trim() });
-        });
+        this.state = { data: null, alert: null };
     }
 
+    componentDidMount() {
+        const intervalId = setInterval(() => {
+            this.loadSensors();
+        }, 10000);
+        this.loadSensors();
+        this.setState({ intervalId });
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.state.intervalId);
+    }
+
+    loadSensors = () => {
+        cockpit
+                .spawn(["upower", "-d"], { err: "message", superuser: "try" })
+                .done((response) => {
+                    const lines = response.split('\n');
+                    this.setState({ data: lines });
+                    this.setState({ alert: null });
+                })
+                .fail((err) => {
+                    if (err.message === 'not-found') {
+                        err.message = 'Spawning \'upower\' return \'not-found\', make sure upower is installed';
+                    }
+                    this.setState({ data: null });
+                    this.setState({ alert: err });
+                    console.log(err);
+                });
+    };
+
     render() {
+        const { data, alert } = this.state;
         return (
             <Card>
-                <CardTitle>Starter Kit</CardTitle>
+                <CardTitle>UPower Output</CardTitle>
                 <CardBody>
-                    <Alert
-                        variant="info"
-                        title={ cockpit.format(_("Running on $0"), this.state.hostname) }
-                    />
+                    { alert != null ? <Alert variant={alert.variant} title={alert.message} /> : <></> }
+                    { data != null
+                        ? Object.entries(data).map((key, index) =>
+                            <pre key={index}>
+                                {key[1]}
+                            </pre>
+                        )
+                        : '' }
                 </CardBody>
             </Card>
         );
