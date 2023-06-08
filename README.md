@@ -5,7 +5,7 @@ A simple module that displays output from UPower (battery usage, levels, etc.)
 # Installing from distribution
 
 - Install upower
-- Download latest upower release
+- Download latest cockpit-upower release
 - Extract the content of dist folder to /usr/share/cockpit/upower
 - Refresh cockpit page (hard refresh might needed Ctrl+Shift+R)
 
