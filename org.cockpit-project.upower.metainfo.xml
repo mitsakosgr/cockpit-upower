@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="addon">
+  <id>org.cockpit_project.upower</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>UPower</name>
+  <summary>UPower cockpit module</summary>
+  <description>
+    <p>
+      UPower cockpit module
+    </p>
+  </description>
+  <extends>org.cockpit_project.cockpit</extends>
+  <launchable type="cockpit-manifest">upower</launchable>
+  <url type="homepage">https://github.com/mitsakosgr/cockpit-upower</url>
+  <url type="bugtracker">https://github.com/mitsakosgr/cockpit-upower/issues</url>
+  <update_contact>cockpit-devel_AT_lists.fedorahosted.org</update_contact>
+</component>
