@@ -1,38 +1,49 @@
-/*
- * This file is part of Cockpit.
- *
- * Copyright (C) 2017 Red Hat, Inc.
- *
- * Cockpit is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or
- * (at your option) any later version.
- *
- * Cockpit is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
- */
-
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Card, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import cockpit from 'cockpit';
 import React from 'react';
 
+let selectedDevice = null;
+
 export class Application extends React.Component {
     constructor() {
         super();
-        this.state = { data: null, alert: null };
+
+        this.toggleRef = React.createRef();
+
+        this.state = {
+            data: null,
+            alert: null,
+            devices: [],
+        };
+
+        cockpit
+                .spawn(["upower", "-e"], { err: "message", superuser: "try" })
+                .done((response) => {
+                    const devices = response.split('\n').filter(i => i);
+                    this.setState({ devices });
+
+                    selectedDevice = devices[0];
+                })
+                .fail((err) => {
+                    if (err.message === 'not-found') {
+                        err.message = 'Spawning \'upower\' return \'not-found\', make sure upower is installed';
+                    }
+                    this.setState({ data: null });
+                    this.setState({ alert: err });
+                    console.log(err);
+                });
+
+        this.handleDeviceChange = (event) => {
+            selectedDevice = event.target.value;
+            this.loadDeviceInfo();
+        };
     }
 
     componentDidMount() {
         const intervalId = setInterval(() => {
-            this.loadSensors();
+            this.loadDeviceInfo();
         }, 10000);
-        this.loadSensors();
         this.setState({ intervalId });
     }
 
@@ -40,11 +51,22 @@ export class Application extends React.Component {
         clearInterval(this.state.intervalId);
     }
 
-    loadSensors = () => {
+    loadDeviceInfo = () => {
+        if (selectedDevice == null) {
+            return;
+        }
+
+        console.log(selectedDevice);
+
         cockpit
-                .spawn(["upower", "-d"], { err: "message", superuser: "try" })
+                .spawn(["upower", "-i", selectedDevice], { err: "message", superuser: "try" })
                 .done((response) => {
-                    const lines = response.split('\n');
+                    const parts = response.split('Daemon:');
+                    // const devices = parts[0].split("Device: ");
+
+                    // this.setState({ devices });
+
+                    const lines = parts[0].split('\n');
                     this.setState({ data: lines });
                     this.setState({ alert: null });
                 })
@@ -58,13 +80,30 @@ export class Application extends React.Component {
                 });
     };
 
+    clearSelection = () => {
+        this.setState({
+            selected: null,
+            isOpen: false
+        });
+    };
+
     render() {
-        const { data, alert } = this.state;
+        const { devices, data, alert } = this.state;
         return (
-            <Card>
-                <CardTitle>UPower Output</CardTitle>
-                <CardBody>
-                    { alert != null ? <Alert variant={alert.variant} title={alert.message} /> : <></> }
+            <div>
+                <Card style={{ overflow: 'auto' }}>
+                    <CardTitle>UPower Output</CardTitle>
+                    { alert != null ? <CardBody><Alert variant={alert.variant} title={alert.message} /> </CardBody> : <></> }
+                </Card>
+                <select onChange={this.handleDeviceChange}>
+                    { devices != null
+                        ? Object.entries(devices).map((key, index) =>
+                            <option key={index} value={key[1]}>{key[1]}</option>
+                        )
+                        : '' }
+                </select>
+
+                <div style={{ overflow: 'auto' }}>
                     { data != null
                         ? Object.entries(data).map((key, index) =>
                             <pre key={index}>
@@ -72,8 +111,8 @@ export class Application extends React.Component {
                             </pre>
                         )
                         : '' }
-                </CardBody>
-            </Card>
+                </div>
+            </div>
         );
     }
 }
